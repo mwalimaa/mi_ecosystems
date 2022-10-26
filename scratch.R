@@ -10,13 +10,10 @@ library(terra) # not gonna use terra
 
 # import the michigan counties shapefile from disk
 mico <- st_read("C:/Users/mwali/mwalimaa/Projects/SpatialData/Michigan/Counties_v17a/Counties_v17a.shp") %>%
-  st_transform(crs = 5070)
-mi <- st_union(mico) %>%
-  st_sf()
+  st_transform(crs = 5070) %>%
+  terra::vect()
+mi <- terra::union(mico)
 
-# turn to SpatVector
-mico <- vect(mico)
-mi <- vect(mi)
 
 # import the most recent landfire data and crop mask to mi
 us_bps <- terra::rast("C:/Users/mwali/mwalimaa/Projects/SpatialData/LANDFIRE/LF2020_BPS_220_CONUS/Tif/LC20_BPS_220.tif")
