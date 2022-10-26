@@ -14,6 +14,10 @@ mico <- st_read("C:/Users/mwali/mwalimaa/Projects/SpatialData/Michigan/Counties_
 mi <- st_union(mico) %>%
   st_sf()
 
+# turn to SpatVector
+mico <- vect(mico)
+mi <- vect(mi)
+
 # import the most recent landfire data and crop mask to mi
 us_bps <- terra::rast("C:/Users/mwali/mwalimaa/Projects/SpatialData/LANDFIRE/LF2020_BPS_220_CONUS/Tif/LC20_BPS_220.tif")
 
@@ -22,6 +26,7 @@ plot(us_bps)
 
 bps_c <- us_bps %>% terra::crop(mi) # not working
 
+plot(bps_c)
 
 
 
