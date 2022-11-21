@@ -16,13 +16,13 @@ library(flexdashboard)
 
 ```
 
-<font size = "4"> By Myles Walimaa and Randy Swaty </font>  
+<font size = "4"> Dashboard by Myles Walimaa, guidance by Randy Swaty </font>  
 
 
-<font size = "6"> About this dashboard... </font>  
-<font size = "3"> This idea was initially designed by [Randy Swaty](mailto:rswaty@tnc.org) as an alternative to a PowerPoint presentation. There was interest in building on this idea in the conservation community and I, [Myles Walimaa](mailto:mwalimaa@gmail.com), made some updates with newer data and a new charts. This can certainly be built upon and these workflows may be used for any area of interest. The State of Michigan is the target area for this dashboard, since it is where both Randy and I have lived for years.  
+<font size = "5"> About this dashboard... </font>  
+<font size = "3"> This idea was initially designed by [Randy Swaty](mailto:rswaty@tnc.org) as an alternative to a PowerPoint presentation. There was interest in building on this idea in the conservation community and I, [Myles Walimaa](mailto:mwalimaa@gmail.com), made some updates with newer data and new charts. This can certainly be built upon and these workflows may be used for any area of interest. The State of Michigan is the target area for this dashboard, since it is where both Randy and I have lived for years.  
 
-Randy is an ecologist for The Nature Conservancy and I am a former National Park Service employee and currently a GIS Analyst. We both work with the [Conservation Data Lab](https://conservationdatalab.org/) to mentor students in the art of computer coding and data visualization, particularly for conservation purposes.  
+Randy is an ecologist for The Nature Conservancy and I am a former National Park Service employee. We both work with the [Conservation Data Lab](https://conservationdatalab.org/) to mentor students in the art of computer coding and data visualization, particularly for conservation purposes.  
 
 The purpose of this dashboard is to explore the major ecosystems of Michigan's past and how they have changed.  
 As you explore, ask yourself some of these questions:  
