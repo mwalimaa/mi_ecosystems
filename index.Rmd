@@ -16,6 +16,7 @@ library(flexdashboard)
 library(tmap)
 library(sf)
 library(tidyverse)
+library(raster)
 
 shp <- st_read("./us_state_bounds/tl_2022_us_state.shp", quiet = T) %>%
   filter(NAME == "Michigan")
@@ -78,9 +79,9 @@ chart2 <- ggplot(data = bps_att3, aes(fill = GROUPVEG, y = acres, x = reorder(BP
   labs(title = "Top 25 Historic Ecosystems in Michigan",
        x = "",
        y = "Acres",
-       fill = "GROUPVEG") +
+       fill = "Ecosystem Type") +
   theme_light() +
-  scale_fill_manual(values = c("#92c173", "#d6009c", "#4ae500", "#ceff61", "#b50000")) +
+  scale_fill_manual(values = c("#117733", "#cc6677", "#119d74", "#999933", "#25bfde")) +
   scale_y_continuous(labels = scales::comma)
 
 ichart2 <- plotly::ggplotly(chart2) %>% plotly::style(hoverinfo = "none")
@@ -160,11 +161,11 @@ c4 <- c3 %>% filter(BPS_NAME %in% c25)
 chart <- ggplot(data = c4, aes(fill = SCL_V, y = acres, x = reorder(BPS_NAME, acres))) +
   geom_bar(position = "stack", stat = "identity") +
   coord_flip() +
-  scale_fill_manual(values = c("#e2ca1b", "#515151", "#cd7220", "#22a601")) +
+  scale_fill_manual(values = c("#e2ca1b", "#515151", "#cd7220", "#117733")) +
   labs(title = "Top 25 Historic Ecosystems and How They Changed",
        x = "",
        y = "Acres",
-       fill = "TYPE") +
+       fill = "Change Type") +
   scale_y_continuous(labels = scales::comma) +
   theme_light()
 ichart <- plotly::ggplotly(chart) %>% plotly::style(hoverinfo = "none")
@@ -224,7 +225,7 @@ group <- c %>% group_by(GROUPVEG) %>%
   pull(GROUPVEG)
 
 # grouping combine and filter
-data <- c %>% select(GROUPVEG, EVT_PHYS, Freq.x, Freq.y, freq) %>% 
+data <- c %>% dplyr::select(GROUPVEG, EVT_PHYS, Freq.x, Freq.y, freq) %>% 
   mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Developed"), "Developed")) %>%
   mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Exotic"), "Exotic")) %>%
   mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Quarries"), "Mineland")) %>%
@@ -249,6 +250,8 @@ nodes <- data.frame(
 data$IDsource <- match(data$source, nodes$name) - 1
 data$IDtarget <- match(data$target, nodes$name) - 1
 
+cols <- "d3.scaleOrdinal() .domain(['Conifer (past)', 'Grassland (past)', 'Hardwood (past)', 'Hardwood-Conifer (past)', 'Riparian (past)', 'Agricultural (present)', 'Conifer (present)', 'Conifer-Hardwood (present)', 'Developed (present)', 'Exotic (present)', 'Grassland (present)', 'Mineland (present)', 'Riparian (present)', 'Shrubland (present)']) .range(['#cc6677', '119d74', '#999933', '#25bfde', '#e2ca1b', '#999933', '#515151', 'cd7220', '#cd7220', '#cd7220', '#cd7220', 'red', 'yellow', 'blue', '#117733'])"
+
 snky <- networkD3::sankeyNetwork(Links = data,
                                  Nodes = nodes,
                                  Source = "IDsource",
@@ -258,7 +261,8 @@ snky <- networkD3::sankeyNetwork(Links = data,
                                  fontSize = 14,
                                  iterations = 0,
                                  sinksRight = F,
-                                 width = 6)
+                                 width = 6,
+                                 colourScale = cols)
 snky
 ```
 
@@ -308,7 +312,8 @@ t2 <- DT::datatable(t1, extensions = "Buttons", options = list(paging = T,
                                                                searching = T,
                                                                ordering = T,
                                                                dom = "Bfrtip",
-                                                               buttons = c("csv", "excel")))
+                                                               buttons = c("csv", "excel"))) %>%
+  DT::formatCurrency("ACRES", currency = "", interval = 3, mark = ",", digits = 0)
 
 t2
 ```
