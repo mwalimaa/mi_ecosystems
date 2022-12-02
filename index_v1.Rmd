@@ -70,20 +70,19 @@ library(tidyverse)
 options(scipen = 999)
 
 bps_att3 <- read.csv("./outputs/bps_att_chart.csv") %>%
-  top_n(25)
+  top_n(30)
 
 chart2 <- ggplot(data = bps_att3, aes(fill = GROUPVEG, y = acres, x = reorder(BPS_NAME, acres))) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  labs(title = "Top 25 Historic Ecosystems in Michigan",
-       x = "",
+  labs(title = "Top 30 Historic Ecosystems in Michigan",
+       x = "BPS_NAME",
        y = "Acres",
        fill = "GROUPVEG") +
   theme_light() +
-  scale_fill_manual(values = c("#92c173", "#d6009c", "#4ae500", "#ceff61", "#b50000")) +
-  scale_y_continuous(labels = scales::comma)
+  scale_fill_manual(values = c("#bfbfbf", "#92c173", "#d6009c", "#4ae500", "#ceff61", "#b50000"))
 
-ichart2 <- plotly::ggplotly(chart2) %>% plotly::style(hoverinfo = "none")
+ichart2 <- plotly::ggplotly(chart2, tooltip = c("x", "y", "fill", "total")) %>% plotly::style(hoverinfo = "none")
 ichart2
 
 
@@ -108,6 +107,33 @@ This is what we think the distribution of ecosystems looked like prior to Europe
 
 Explore this map created by [Native Land Digital](https://native-land.ca/) to learn more about which tribes were located where. Botanist Robin Wall Kimmerer's book [Braiding Sweetgrass](https://milkweed.org/book/braiding-sweetgrass) provides valuable insight on the traditional ways the natives connected with the land, largely through combining ancient philosophy and modern science.
 
+
+
+### Historical Ecosystems {data-commentary-width=500}
+```{r}
+library(tidyverse)
+options(scipen = 999)
+
+bps_att3 <- read.csv("./outputs/bps_att_chart.csv") %>%
+  top_n(30)
+
+chart2 <- ggplot(data = bps_att3, aes(fill = GROUPVEG, y = acres, x = reorder(BPS_NAME, acres))) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 30 Historic Ecosystems in Michigan",
+       x = "BPS_NAME",
+       y = "Acres",
+       fill = "GROUPVEG") +
+  theme_light() +
+  scale_fill_manual(values = c("#bfbfbf", "#92c173", "#d6009c", "#4ae500", "#ceff61", "#b50000"))
+chart2
+#ichart2 <- plotly::ggplotly(chart2, tooltip = c("x", "y", "fill", "total"))
+#ichart2
+
+
+```
+
+***
 **DISCLAIMER:**  
 This chart was created using LANDFIRE's BioPhysical Settings. As there was no satellite imagery 300 years ago, this is a *model* of what the historical ecosystems looked like based soil types, climate, elevation, ecological succession, among many other datasets.  
 
@@ -136,38 +162,121 @@ The point is that this is *not* a perfect representation, although it helps us g
 
 
 
+### Ecosystems Today {data-commentary-width=500}
+
+```{r}
+library(tidyverse)
+options(scipen = 999)
+
+
+evt_att3 <- read.csv("./outputs/evt_att_chart.csv") %>%
+  mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Developed"), "Developed"),
+         EVT_NAME = replace(EVT_NAME, str_detect(EVT_NAME, "Developed"), "Developed")) %>%
+  mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Exotic"), "Exotic"),
+         EVT_NAME = replace(EVT_NAME, str_detect(EVT_NAME, "Exotic"), "Exotic")) %>%
+  mutate(EVT_PHYS = replace(EVT_PHYS, str_detect(EVT_PHYS, "Quarries"), "Mineland"),
+         EVT_NAME = replace(EVT_NAME, str_detect(EVT_NAME, "Quarries"), "Mineland")) %>%
+  group_by(EVT_NAME, EVT_PHYS) %>%
+  summarise(Freq = sum(Freq),
+            acres = sum(acres)) %>%
+  arrange(desc(acres)) %>%
+  as.data.frame() %>%
+  top_n(30)
+
+chart3 <- ggplot(data = evt_att3, aes(fill = EVT_PHYS, y = acres, x = reorder(EVT_NAME, acres))) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 30 Current Ecosystems in Michigan",
+       x = "EVT_NAME",
+       y = "Acres",
+       fill = "EVT_PHYS") +
+  theme_light() + 
+  scale_fill_manual(values = c("#e2ca1b", "#92c173", "#ceff61", "#515151", "#cd7220", "#4ae500", "#b50000"))
+ichart3 <- plotly::ggplotly(chart3, tooltip = c("x", "y", "fill", "total"))
+ichart3
+
+```
+
+***
+
+**DISCLAIMER:**  
+This chart was created using LANDFIRE's Existing Vegetation Type. This uses satellite imagery, ground assessment, and other methods to describe current "ecosystems" (or lack thereof). I grouped all the developed sub-categories into a single "Developed" classification.  
+
+- Existing Vegetation Type (EVT) has a "fine" scale classification called "EVT_NAME" and a "coarse" scale classification called "EVT_PHYS".  
+
+- The acreages were calculated based on the quantity of 900m^2^ pixels (30m x 30m), which was converted to acres.  
+
+- When you hover, you can see how many acres of each ecosystem exists (roughly).  
+
+- Use your mouse to zoom in on smaller areas by drawing a box.  
+
+- You can reset the zoom by clicking the "house" icon at the top left of the chart.  
+
+Does anything jump out to you as surprising?  
+
+Should "ruderal" ecosystems be classified as agriculture, exotic, or something else? Disturbed?  
+
+What do you notice about the historical and current ratios of conifers-to-hardwoods?  
+
+Again, this is *not* a perfect representation of today's conditions and is meant for scales of several thousand+ acres. If you want to explore the EVT dataset further, you can find [information here](https://www.landfire.gov/evt.php) and can read about its development. There is a nifty [handbook](https://www.landfire.gov/documents/LANDFIRE_Ecological_Systems_Descriptions_CONUS.pdf) that discusses each ecosystem classification in a fair amount of depth, so you may get a better idea of what you may find there.
+
+
+### Spatial Exploration of Change {data-commentary-width=500}
+
+```{r out.width = "800px", fig.align='center', fig.cap="Map of ecosystem change in Michigan using LANDFIRE's Succession Class dataset."}
+knitr::include_graphics("./dash/change_map.jpeg")
+```
+
+***
+
+**DISCLAIMER:**
+The assumptions made in this map are that *if* the ecosystems are no longer following the trajectory of natural ecological succession, *then* they have been converted into something unnatural. This map does not consider ecosystems changing from one to another as that may happen naturally, only change into non-native, mineland, agriculture, development, or the like.  
+
+
+- 50.1% of ecosystems remain Natural Vegetation  
+
+- 25.9% of ecosystems have been converted to Agriculture  
+
+- 13.0% of ecosystems have been Developed in one way or another  
+
+- 11.0% of ecosystems have changed in Other ways  
+
+Where has most of the ecosystem conversion taken place?  
+
+To what category have most of the ecosystems converted? What used to be there?  
+
+
+
 ### Visual Exploration of Change {data-commentary-width=500}
 
 ```{r}
 library(tidyverse)
 c2 <- read.csv("./outputs/bps2scl.csv")
 
-
 c3 <- c2  %>%
+  # group_by(BPS_NAME) %>%
+  # summarise(sumf = sum(freq)) %>%
+  # left_join(c2, by = "BPS_NAME") %>%
+  # select(BPS_NAME, SCL_V, sumf, freq) %>%
   group_by(BPS_NAME, SCL_V) %>%
   summarise(freq = sum(freq)) %>%
   as.data.frame() %>%
   mutate(SCL_V = replace(SCL_V, str_detect(SCL_V, "Ag"), "Agricultural")) %>%
-  mutate(acres = as.integer(round(freq * 900 / 4046.85)),
+  mutate(acres = round(freq * 900 / 4046.85),
          SCL_V = factor(c(SCL_V), levels= c("Agricultural", "Developed", "Other", "NatVeg")))
 
-c25 <- c3 %>% group_by(BPS_NAME) %>% summarise(total = sum(acres)) %>%
-  arrange(desc(total)) %>% top_n(25) %>% pull(BPS_NAME)
+#levels(c3$SCL_V) <- rev(levels(c3$SCL_V))
 
-c4 <- c3 %>% filter(BPS_NAME %in% c25)
-
-
-chart <- ggplot(data = c4, aes(fill = SCL_V, y = acres, x = reorder(BPS_NAME, acres))) +
+chart <- ggplot(data = c3, aes(fill = SCL_V, y = acres, x = reorder(BPS_NAME, acres))) +
   geom_bar(position = "stack", stat = "identity") +
   coord_flip() +
   scale_fill_manual(values = c("#e2ca1b", "#515151", "#cd7220", "#22a601")) +
-  labs(title = "Top 25 Historic Ecosystems and How They Changed",
-       x = "",
+  labs(title = "Top 30 Historic Ecosystems and How They Changed",
+       x = "BPS_NAME",
        y = "Acres",
        fill = "TYPE") +
-  scale_y_continuous(labels = scales::comma) +
   theme_light()
-ichart <- plotly::ggplotly(chart) %>% plotly::style(hoverinfo = "none")
+ichart <- plotly::ggplotly(chart, tooltip = c("x", "y", "fill", "total"))
 ichart
 ```
 
@@ -192,23 +301,6 @@ Where did most of the agricultural land come from?  Do you notice any trends?
 
 Are there any ecosystems that might be close to disappearing completely?
 
-
-
-**DISCLAIMER:**
-The assumptions made in this map are that *if* the ecosystems are no longer following the trajectory of natural ecological succession, *then* they have been converted into something unnatural. This map does not consider ecosystems changing from one to another as that may happen naturally, only change into non-native, mineland, agriculture, development, or the like.  
-
-
-- 50.1% of ecosystems remain Natural Vegetation  
-
-- 25.9% of ecosystems have been converted to Agriculture  
-
-- 13.0% of ecosystems have been Developed in one way or another  
-
-- 11.0% of ecosystems have changed in Other ways  
-
-Where has most of the ecosystem conversion taken place?  
-
-To what category have most of the ecosystems converted? What used to be there?  
 
 
 ### Coarse Look at Conversion {data-commentary-width=500}
@@ -296,20 +388,10 @@ t1 <- t %>%
   group_by(BPS_NAME, EVT_NAME, GROUPVEG, EVT_PHYS) %>%
   summarise(freq = sum(freq)) %>%
   mutate(ACRES = round(freq * 900 / 4046.86)) %>%
-  dplyr::select(BPS_NAME, GROUPVEG, ACRES, EVT_PHYS, EVT_NAME) %>%
+  select(BPS_NAME, GROUPVEG, ACRES, EVT_PHYS, EVT_NAME) %>%
   arrange(desc(ACRES))
             
-#t2 <- reactable::reactable(t1, defaultPageSize = 15, filterable = T, searchable = T)
-t2 <- DT::datatable(t1, extensions = "Buttons", options = list(paging = T,
-                                                               scrollX = T,
-                                                               lengthMenu = c(15, 30, 50, 100),
-                                                               pageLength = 15,
-                                                               autoWidth = T,
-                                                               searching = T,
-                                                               ordering = T,
-                                                               dom = "Bfrtip",
-                                                               buttons = c("csv", "excel")))
-
+t2 <- reactable::reactable(t1, defaultPageSize = 15, filterable = T, searchable = T)
 t2
 ```
 
