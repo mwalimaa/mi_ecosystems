@@ -81,7 +81,7 @@ chart2 <- ggplot(data = bps_att3, aes(fill = GROUPVEG, y = acres, x = reorder(BP
        y = "Acres",
        fill = "Ecosystem Type") +
   theme_light() +
-  scale_fill_manual(values = c("#117733", "#cc6677", "#119d74", "#999933", "#25bfde")) +
+  scale_fill_manual(values = c("#117733", "#cc6677", "#aa4499", "#999933", "#25bfde")) +
   scale_y_continuous(labels = scales::comma)
 
 ichart2 <- plotly::ggplotly(chart2) %>% plotly::style(hoverinfo = "none")
@@ -250,7 +250,7 @@ nodes <- data.frame(
 data$IDsource <- match(data$source, nodes$name) - 1
 data$IDtarget <- match(data$target, nodes$name) - 1
 
-cols <- "d3.scaleOrdinal() .domain(['Conifer (past)', 'Grassland (past)', 'Hardwood (past)', 'Hardwood-Conifer (past)', 'Riparian (past)', 'Agricultural (present)', 'Conifer (present)', 'Conifer-Hardwood (present)', 'Developed (present)', 'Exotic (present)', 'Grassland (present)', 'Mineland (present)', 'Riparian (present)', 'Shrubland (present)']) .range(['#cc6677', '119d74', '#999933', '#25bfde', '#e2ca1b', '#999933', '#515151', 'cd7220', '#cd7220', '#cd7220', '#cd7220', 'red', 'yellow', 'blue', '#117733'])"
+cols <- "d3.scaleOrdinal() .domain(['Conifer (past)', 'Grassland (past)', 'Hardwood (past)', 'Hardwood-Conifer (past)', 'Riparian (past)', 'Agricultural (present)', 'Conifer (present)', 'Conifer-Hardwood (present)', 'Developed (present)', 'Exotic (present)', 'Grassland (present)', 'Mineland (present)', 'Riparian (present)', 'Shrubland (present)']) .range(['#cc6677', 'aa4499', '#999933', '#25bfde', '#e2ca1b', '#999933', '#515151', 'cd7220', '#cd7220', '#cd7220', '#cd7220', 'red', 'yellow', 'blue', '#117733'])"
 
 snky <- networkD3::sankeyNetwork(Links = data,
                                  Nodes = nodes,
